@@ -1,7 +1,7 @@
 exports.fetchAll = (req, res, next) => {
   res
     .status(200)
-    .json({ success: true, data: { message: 'show all bootcamps' } });
+    .json({ success: true, data: { message: 'show all shelters' } });
 };
 
 exports.getByID = (req, res, next) => {
@@ -9,14 +9,14 @@ exports.getByID = (req, res, next) => {
     .status(200)
     .json({
       success: true,
-      data: { message: `Get bootcamp ${req.params.id}` }
+      data: { message: `Get shelter ${req.params.id}` }
     });
 };
 
 exports.save = (req, res, next) => {
   res
     .status(200)
-    .json({ success: true, data: { message: 'Create new bootcamp' } });
+    .json({ success: true, data: { message: 'Create new shelter' } });
 };
 
 exports.update = (req, res, next) => {
@@ -24,7 +24,7 @@ exports.update = (req, res, next) => {
     .status(200)
     .json({
       success: true,
-      data: { message: `Update bootcamp ${req.params.id}` }
+      data: { message: `Update shelter ${req.params.id}` }
     });
 };
 
@@ -33,6 +33,6 @@ exports.remove = (req, res, next) => {
     .status(200)
     .json({
       success: true,
-      data: { message: `Delete ${req.params.id} bootcamp` }
+      data: { message: `Delete ${req.params.id} shelter` }
     });
 };
