@@ -1,5 +1,6 @@
 const Shelter = require('../models/Shelter');
 const HttpStatus = require('http-status-codes');
+const ErrorResponse = require('../utils/errorResponse');
 
 exports.fetchAll = async (req, res, next) => {
   try {
@@ -8,9 +9,7 @@ exports.fetchAll = async (req, res, next) => {
       .status(HttpStatus.OK)
       .json({ success: true, data: { shelters, count: shelters.length } });
   } catch (err) {
-    res
-      .status(HttpStatus.BAD_REQUEST)
-      .json({ success: false, message_error: err.message });
+    return next(err);
   }
 };
 
@@ -19,15 +18,16 @@ exports.getByID = async (req, res, next) => {
     const shelter = await Shelter.findById(req.params.id);
 
     if (!shelter) {
-      return res
-        .status(HttpStatus.OK)
-        .json({ success: false, message_error: 'shelter not found.' });
+      return next(
+        new ErrorResponse(
+          `shelter with ${req.params.id} id doesn't exists`,
+          HttpStatus.NOT_FOUND
+        )
+      );
     }
     res.status(HttpStatus.OK).json({ success: true, data: { shelter } });
   } catch (err) {
-    res
-      .status(HttpStatus.BAD_REQUEST)
-      .json({ success: false, message_error: err.message });
+    next(err);
   }
 };
 
@@ -37,9 +37,7 @@ exports.save = async (req, res, next) => {
 
     res.status(HttpStatus.OK).json({ success: true, data: { shelter } });
   } catch (err) {
-    res
-      .status(HttpStatus.BAD_REQUEST)
-      .json({ success: false, message_error: err.message });
+    return next(err);
   }
 };
 
@@ -51,15 +49,16 @@ exports.update = async (req, res, next) => {
     });
 
     if (!shelter) {
-      return res
-        .status(HttpStatus.OK)
-        .json({ success: false, message_error: `shelter doesn't exists.` });
+      return next(
+        new ErrorResponse(
+          `shelter with ${req.params.id} id doesn't exists`,
+          HttpStatus.NOT_FOUND
+        )
+      );
     }
     res.status(HttpStatus.OK).json({ success: true, data: { shelter } });
   } catch (err) {
-    res
-      .status(HttpStatus.BAD_REQUEST)
-      .json({ success: false, message_error: err.message });
+    return next(err);
   }
 };
 
@@ -68,14 +67,15 @@ exports.remove = async (req, res, next) => {
     const shelter = await Shelter.findByIdAndDelete(req.params.id);
 
     if (!shelter) {
-      return res
-        .status(HttpStatus.OK)
-        .json({ success: false, message_error: `shelter doesn't exists.` });
+      return next(
+        new ErrorResponse(
+          `shelter with ${req.params.id} id doesn't exists`,
+          HttpStatus.NOT_FOUND
+        )
+      );
     }
     res.status(HttpStatus.OK).json({ success: true, data: {} });
   } catch (err) {
-    res
-      .status(HttpStatus.BAD_REQUEST)
-      .json({ success: false, message_error: err.message });
+    return next(err);
   }
 };
