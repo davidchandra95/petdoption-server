@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const morgan = require('morgan');
 const colors = require('colors');
 const connectDB = require('./config/db');
+const errorHandler = require('./middlewares/error');
 
 //Route files
 const shelterRoutes = require('./routes/shelters');
@@ -18,13 +19,15 @@ app.use(express.json());
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
-app.use('/api/v1/shelters', shelterRoutes);
 
 app.get('/', (req, res) => {
   res
     .status(200)
     .json({ success: true, data: { message: 'Welcome to petdoption API' } });
 });
+app.use('/api/v1/shelters', shelterRoutes);
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 const server = app.listen(
