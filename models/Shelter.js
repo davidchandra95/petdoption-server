@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+const geocoder = require('../utils/geocoder');
+const HttpStatus = require('http-status-codes');
+const ErrorResponse = require('../utils/errorResponse');
 
 const ShelterSchema = new mongoose.Schema(
   {
@@ -17,11 +20,11 @@ const ShelterSchema = new mongoose.Schema(
       maxlength: [200, 'Description can not be more than 200 characters']
     },
     website: {
-      type: String,
-      match: [
-        /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/gm,
-        'Please use a valid URL with HTTP or HTTPS'
-      ]
+      type: String
+      // match: [
+      //   /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/gm,
+      //   'Please use a valid URL with HTTP or HTTPS'
+      // ]
     },
     phone: {
       type: String,
@@ -79,6 +82,31 @@ const ShelterSchema = new mongoose.Schema(
 // create shelter slug from inputed name
 ShelterSchema.pre('save', function(next) {
   this.slug = slugify(this.name, { lower: true });
+  next();
+});
+
+// create shelter's location field
+ShelterSchema.pre('save', async function(next) {
+  let loc = await geocoder.geocode(this.address);
+  if (loc.length > 0) {
+    loc = loc[0];
+    if (loc.countryCode !== 'ID') {
+      return next(
+        new ErrorResponse(`Address not found`, HttpStatus.BAD_GATEWAY)
+      );
+    }
+    this.location = {
+      type: 'Point',
+      coordinates: [loc.longitude, loc.latitude],
+      formattedAddress: loc.formattedAddress,
+      street: loc.streetName,
+      city: loc.city,
+      state: loc.stateCode,
+      zipcode: loc.zipcode,
+      country: loc.countryCode
+    };
+  }
+
   next();
 });
 
