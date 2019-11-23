@@ -5,8 +5,11 @@ const {
   getByID,
   save,
   update,
-  remove
+  remove,
+  getWithinRadius
 } = require('../controllers/shelters');
+
+router.route('/radius/:zipcode/:distance').get(getWithinRadius);
 
 router
   .route('/')
